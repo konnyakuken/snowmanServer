@@ -12,7 +12,9 @@ COPY pyproject.toml* poetry.lock* ./
 
 # poetryでライブラリをインストール (pyproject.tomlが既にある場合)
 RUN poetry config virtualenvs.in-project true
+#権限をRootに
 RUN if [ -f pyproject.toml ]; then poetry install --no-root ; fi
+RUN poetry add line-bot-sdk
 
 # uvicornのサーバーを立ち上げる
 ENTRYPOINT ["poetry", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--reload"]
