@@ -1,4 +1,13 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
+
+from sqlalchemy.orm.session import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+#import api.routers.crud as crud
+from api.routers import crud
+from api.db import get_db
+#from api.schemas import ItemBase
+import api.schemas as Photo_schema
+
 
 from linebot import WebhookParser
 from linebot.models import TextMessage
@@ -22,10 +31,13 @@ app = FastAPI()
 async def hello():
     return {"message" : "Hello,World"}
 
-@app.post("/messaging_api/handle_request")
-async def request():
-    return "ok"
+@app.post('/photo',response_model=Photo_schema.CreatePhoto)
+async def save_Photo(
+    photo_body: Photo_schema.ItemBase, db: AsyncSession = Depends(get_db)):
+    return await crud.create_photo(db, photo_body)
+    #create_article(db, article)
 
+#lineApi
 @app.post("/callback")
 async def handle_request(request: Request):
     # リクエストをパースしてイベントを取得（署名の検証あり）

@@ -8,11 +8,13 @@ packages = [{include = "demo_app"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-fastapi = "^0.85.0"
+fastapi = "^0.85.1"
 uvicorn = {extras = ["standard"], version = "^0.18.3"}
 line-bot-sdk = "^2.3.0"
 python-dotenv = "^0.21.0"
 aiolinebot = "^0.4.1"
+sqlalchemy = "^1.4.42"
+aiomysql = "^0.1.1"
 
 
 [build-system]
