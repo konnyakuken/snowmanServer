@@ -27,13 +27,13 @@ async def get_photo(db: AsyncSession) -> List[Tuple[int, str]]:
 
 async def check_task(db: AsyncSession,photo_id) ->Tuple[int, str]:
     #selectで渡す範囲を選択
-    result = await (db.execute(select(photo_model.Photo.id,).filter(photo_model.Photo.id == photo_id)))
+    result = await (db.execute(select(photo_model.Photo.title,).filter(photo_model.Photo.id == photo_id)))
     #print(type(result))
     #空ではない時、intへ変換
     for row in result:
-        result = int(row[0])
+        result = str(row[0])
 
-    if isinstance(result,int) == True:
+    if isinstance(result,str) == True:
         print(type(result))
         return result
     else:

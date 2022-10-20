@@ -32,6 +32,8 @@ app = FastAPI()
 async def hello():
     return {"message" : "Hello,World"}
 
+
+
 #DB追加
 @app.post('/photo',response_model=Photo_schema.CreatePhoto)
 async def save_Photo(
