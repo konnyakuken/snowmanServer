@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Request, Depends
-
+from email.mime import image
+from fastapi import FastAPI, Request, Depends,File,UploadFile
+import shutil
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.routers import crud
@@ -16,6 +17,9 @@ import os
 from dotenv import load_dotenv
 
 from typing import List, Tuple
+
+import io
+from PIL import Image
 
 # .envファイルの内容を読み込見込む
 load_dotenv()
@@ -42,10 +46,23 @@ async def save_Photo(
     #create_article(db, article)
 
 #全権取得
-@app.get("/photo", response_model=List[Photo_schema.CreatePhoto])
-async def list_photos(db: AsyncSession = Depends(get_db)):
+@app.get("/all", response_model=List[Photo_schema.CreatePhoto])
+async def get_uploadfile(db: AsyncSession = Depends(get_db)):
     return await crud.get_photo(db)
 
+#写真保存
+@app.post("/save/photo")
+def list_photos(db: AsyncSession = Depends(get_db),upload_file: UploadFile = File(...)):
+    return upload_file
+    #return crud.view_photo(upload_file)
+
+#バイナリ(Unity)での画像受け取り
+@app.post("/files/")
+def create_file(file: bytes = File()):
+    image = Image.open(io.BytesIO(file))
+    image.save((os.path.join("./files/", "test1.png")))
+    return "完了!!"
+#1件検索
 @app.get("/check/{photo_id}")
 async def get_photo(photo_id: int,db: AsyncSession = Depends(get_db)):
     return await crud.check_task(db,photo_id)

@@ -11,6 +11,10 @@ from sqlalchemy.engine import Result
 
 from sqlalchemy.exc import NoResultFound
 
+from fastapi import FastAPI, Request, Depends,File,UploadFile
+import shutil
+import os
+
 async def create_photo(
     db: AsyncSession, photo_create: photo_schema.CreatePhoto
 ) -> photo_model.Photo:
@@ -20,6 +24,15 @@ async def create_photo(
     await db.refresh(photo)
     return photo
 
+
+def view_photo(upload_file: UploadFile = File(...)):
+    path = f'./files/{upload_file.filename}'
+    with open(path, 'w+b') as buffer:
+        shutil.copyfileobj(upload_file.file, buffer)
+    return {
+        'filename': path,
+        'type': upload_file.content_type
+    }
 
 async def get_photo(db: AsyncSession) -> List[Tuple[int, str]]:
     result = await (db.execute(select(photo_model.Photo.id,photo_model.Photo.title,)))

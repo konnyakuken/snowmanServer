@@ -3,23 +3,6 @@
 
 #SQLAlchemyの設定
 #from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-"""
-from sqlalchemy.orm import sessionmaker, declarative_base
-
-
-from sqlalchemy import create_engine
-
-#ASYNC_DB_URL に定義したMySQLのdockerコンテナに対して接続するセッションを作成
-ASYNC_DB_URL = "mysql+aiomysql://root@db:3306/demo?charset=utf8"
-
-engine = create_engine(ASYNC_DB_URL, echo=True)
-SessionLocal = sessionmaker(bind=engine)
-
-session = SessionLocal()
-
-Base = declarative_base()
-
-"""
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 
