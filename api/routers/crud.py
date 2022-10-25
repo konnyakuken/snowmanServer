@@ -34,6 +34,18 @@ def view_photo(upload_file: UploadFile = File(...)):
         'type': upload_file.content_type
     }
 
+def file_count():
+    dir = './files'
+    count_file = 0
+    #ディレクトリの中身分ループする
+    for file_name in os.listdir(dir):
+        #ファイルもしくはディレクトリのパスを取得
+        file_path = os.path.join(dir,file_name)
+        #ファイルであるか判定
+        if os.path.isfile(file_path):
+            count_file +=1
+    return int(count_file)
+
 async def get_photo(db: AsyncSession) -> List[Tuple[int, str]]:
     result = await (db.execute(select(photo_model.Photo.id,photo_model.Photo.title,)))
     return result.all()
