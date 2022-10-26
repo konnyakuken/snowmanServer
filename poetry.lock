@@ -126,6 +126,19 @@ python-versions = ">=3.7"
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
+name = "cloudinary"
+version = "1.30.0"
+description = "Python and Django SDK for Cloudinary"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+certifi = "*"
+six = "*"
+urllib3 = ">=1.26.5,<2"
+
+[[package]]
 name = "colorama"
 version = "0.4.5"
 description = "Cross-platform colored terminal text."
@@ -488,7 +501,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "dd72990920f8a4946719297b2a7963183a1a7c295ddce413cd646de992f5fe3c"
+content-hash = "70044cecc6f4fab87f02687a60c38ad26d8ee7ed0894809a839f1181f3c08964"
 
 [metadata.files]
 aiohttp = [
@@ -614,6 +627,9 @@ charset-normalizer = [
 click = [
     {file = "click-8.1.3-py3-none-any.whl", hash = "sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48"},
     {file = "click-8.1.3.tar.gz", hash = "sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"},
+]
+cloudinary = [
+    {file = "cloudinary-1.30.0.tar.gz", hash = "sha256:afda8b4dcd93f500682e8f2bccda4b1a92d05b0094d5bc7ef6f6425eed13e81e"},
 ]
 colorama = [
     {file = "colorama-0.4.5-py2.py3-none-any.whl", hash = "sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da"},

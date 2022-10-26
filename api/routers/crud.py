@@ -25,6 +25,14 @@ async def create_photo(
     return photo
 
 
+async def save_URL(data:str,db: AsyncSession):
+
+    photo =  photo_model.Photo(URL=data)
+    db.add(photo)
+    await db.commit()
+    await db.refresh(photo)
+    return photo.id
+
 def view_photo(upload_file: UploadFile = File(...)):
     path = f'./files/{upload_file.filename}'
     with open(path, 'w+b') as buffer:
@@ -46,20 +54,30 @@ def file_count():
             count_file +=1
     return int(count_file)
 
+
 async def get_photo(db: AsyncSession) -> List[Tuple[int, str]]:
-    result = await (db.execute(select(photo_model.Photo.id,photo_model.Photo.title,)))
+    result = await (db.execute(select(photo_model.Photo.id,photo_model.Photo.URL,).order_by(photo_model.Photo.id.desc())))
     return result.all()
+
+#カウント
+async def count_photo(db: AsyncSession) -> List[Tuple[int, str]]:
+    #降順で取得
+    result = await (db.execute(select(photo_model.Photo.id,).order_by(photo_model.Photo.id.desc())))
+    sum = result.first()
+    if str(sum) != "None":
+        sum = sum.id
+        return sum
+    else:
+        return "0"
 
 async def check_task(db: AsyncSession,photo_id) ->Tuple[int, str]:
     #selectで渡す範囲を選択
-    result = await (db.execute(select(photo_model.Photo.title,).filter(photo_model.Photo.id == photo_id)))
-    #print(type(result))
+    result = await (db.execute(select(photo_model.Photo.URL,).filter(photo_model.Photo.id == photo_id)))
     #空ではない時、intへ変換
     for row in result:
         result = str(row[0])
 
     if isinstance(result,str) == True:
-        print(type(result))
         return result
     else:
         return "None"

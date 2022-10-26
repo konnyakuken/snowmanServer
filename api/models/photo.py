@@ -7,4 +7,4 @@ class Photo(Base):
     __tablename__ = "photos"
 
     id = Column(Integer, primary_key=True)
-    title = Column(String(1024))
+    URL = Column(String(1024))

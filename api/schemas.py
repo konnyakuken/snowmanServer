@@ -2,7 +2,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 class ItemBase(BaseModel):
-    title: str
+    URL: str
 
 
 class CreatePhoto(ItemBase):

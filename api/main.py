@@ -1,6 +1,7 @@
 from ast import Str
 from email.mime import image
 import numbers
+from unittest import result
 from fastapi import FastAPI, Request, Depends,File,UploadFile
 import shutil
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,6 +26,11 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
+import cloudinary
+import cloudinary.uploader
+
+import json
+
 # .envファイルの内容を読み込見込む
 load_dotenv()
 accessToken= os.environ["CHANNEL_ACCESS_TOKEN"] # 環境変数の値をAPに代入
@@ -42,6 +48,14 @@ app.mount(
     name='file'
 )
 
+
+cloudinary.config (
+    cloud_name = os.environ['CLOUDINARY_NAME'],
+    api_key = os.environ['CLOUDINARY_API_KEY'],
+    api_secret = os.environ['CLOUDINARY_API_SECRET'],
+)
+
+
 @app.get("/")
 async def hello():
     return {"message" : "Hello,World"}
@@ -58,19 +72,29 @@ async def save_Photo(
 async def get_uploadfile(db: AsyncSession = Depends(get_db)):
     return await crud.get_photo(db)
 
+@app.get("/count")
+async def photo_count(db: AsyncSession = Depends(get_db)):
+    return await crud.count_photo(db)
+
 #写真保存
 @app.post("/save/photo")
-def list_photos(db: AsyncSession = Depends(get_db),upload_file: UploadFile = File(...)):
+def list_photos(upload_file: UploadFile = File(...)):
     return crud.view_photo(upload_file)
 
+# bytes = File()とphoto_body: Photo_schema.ItemBaseを同時に宣言するとうまくいかない
 #バイナリ(Unity)での画像受け取り
 @app.post("/Unity/save")
-def create_file(file: bytes = File()):
+async def create_file(file: bytes = File(),db: AsyncSession = Depends(get_db)):
     image = Image.open(io.BytesIO(file))
-    number = crud.file_count()
+    number = await crud.count_photo(db)
+    number = str(int(number)+1)
     zero = 4 - len(str(number))
     saveName = zero*"0" + str(number) + ".png" 
     image.save((os.path.join("./files/", saveName)))
+    #cloudinaryへ送信
+    res = cloudinary.uploader.upload(file = os.path.join("./files/", saveName),folder = "IVRC/", public_id=str(number))
+    #DBへURLを保存
+    number = await crud.save_URL(res["secure_url"],db)
     return (zero*"0" + str(number))
 
 
@@ -106,25 +130,21 @@ async def handle_request(request: Request,db: AsyncSession = Depends(get_db)):
     for ev in events:
         #もしチャットが整数ならDB検索
         if (ev.message.text).isdecimal() == True:
-            #reply_text= await crud.check_task(db,ev.message.text)
-            #if reply_text == "None":
-            #    isText = True
-            #    reply_text = "この数字は見つからなかったよ"
-            number = int(ev.message.text)
-            imgSum = crud.file_count() - 1
-            if  number <= imgSum:
-                main_image_path = f"files/{ev.message.text}.png"
-                preview_image_path = f"files/{ev.message.text}.png"
-                print(main_image_path)
-
-                # 画像の送信
-                image_message = ImageSendMessage(
-                    original_content_url=f"https://16b1-27-127-169-37.jp.ngrok.io/{main_image_path}",
-                    preview_image_url=f"https://16b1-27-127-169-37.jp.ngrok.io/{preview_image_path}",
-                )
+            if len(str(ev.message.text)) == 4:
+                result= await crud.check_task(db,ev.message.text)
+                
+                if  result != "None":
+                    # 画像の送信
+                    image_message = ImageSendMessage(
+                        original_content_url=result,
+                        preview_image_url=result,
+                    )
+                else:
+                    isText = True
+                    reply_text = "この数字は見つからなかったよ"
             else:
                 isText = True
-                reply_text = "この数字は見つからなかったよ"
+                reply_text="会場でもらった4桁の数字を入力してね！"
             
         else:
             isText = True
